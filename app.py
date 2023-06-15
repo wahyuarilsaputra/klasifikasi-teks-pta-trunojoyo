@@ -13,12 +13,13 @@ from datetime import datetime
 
 X_train, X_test, y_train, y_test = None, None, None, None
 def main():
-    st.sidebar.title("Menu")
-    menu = ["Data", "Pre processing data", "Modelling", "Implementasi"]
+    st.sidebar.title("Prediksi Data Time Series Bank BTN")
+    menu = ["Data", "Pre processing data", "Implementasi"]
     choice = st.sidebar.selectbox("Menu", menu)
 
     if choice == "Data":
-        st.title("Prediksi Data Time Series BTN")
+        st.title("1.Wahyu Aril Saputra 200411100055")
+        st.title("2.Billy Morgen Simbolon 200411100057")
         st.markdown("<h4>Data</h4>", unsafe_allow_html=True)
         data = pd.read_csv('https://raw.githubusercontent.com/wahyuarilsaputra/dataset/main/BBTN.JK.csv')
         
@@ -50,9 +51,9 @@ def main():
                 unsafe_allow_html=True,
             )
         
-
     elif choice == "Pre processing data":
-        st.title("Prediksi Data Time Series BTN")
+        st.title("1.Wahyu Aril Saputra 200411100055")
+        st.title("2.Billy Morgen Simbolon 200411100057")
         st.markdown("<h4>Pre processing data</h4>", unsafe_allow_html=True)
         selected_column = st.selectbox("Pilih Kolom", ('Open','High', 'Low', 'Close'))
         data = pd.read_csv('https://raw.githubusercontent.com/wahyuarilsaputra/dataset/main/BBTN.JK.csv')
@@ -94,12 +95,13 @@ def main():
         elif selected_model == "Naive Bayes":
             model = GaussianNB()
         y_pred = model.fit(X_train, y_train)
-        accuracy = mean_absolute_percentage_error(y_pred, y_test)
-        # accuracy = model.score(X_test, y_test)
+        # accuracy = mean_absolute_percentage_error(y_pred, y_test)
+        accuracy = model.score(X_test, y_test)
         st.write("Akurasi model:", accuracy)
 
     elif choice == "Implementasi":
-        st.title("Prediksi Data Time Series BTN")
+        st.title("1.Wahyu Aril Saputra 200411100055")
+        st.title("2.Billy Morgen Simbolon 200411100057")
         st.markdown("Implementasi")
         # Tambahkan kode untuk halaman Implementasi di sini
         input_date = st.date_input("Date", value=datetime.today())
