@@ -13,7 +13,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import sys
 import os
 # path_to_fungsi = r'A:\Matkul\Semester 7\PPW\UTS\Fungsi'
-sys.path.append("A:/Matkul/Semester 7/PPW/UTS/Fungsi")
+# sys.path.append("A:/Matkul/Semester 7/PPW/UTS/Fungsi")
 from Cleaning import cleaning
 from tokenisasi import tokenize_text
 from stopword import remove_stopwords
@@ -227,121 +227,122 @@ def main():
         data = pd.read_csv('https://raw.githubusercontent.com/wahyuarilsaputra/dataset/main/DataSteaming.csv')
         new_data = []
         new_text = st.text_input("Masukkan teks baru untuk diprediksi:", "")
-        new_data.append(new_text)
-        df_baru = pd.DataFrame({'Abstrak': new_data})
-        df_baru['Abstrak'] = df_baru['Abstrak'].apply(lambda x: cleaning(x))
-        df_baru['Abstrak'] = df_baru['Abstrak'].fillna('')
-        df_baru['abstrak_tokens'] = df_baru['Abstrak'].apply(lambda x: tokenize_text(x))
-        df_baru['abstrak_tokens'] = df_baru['abstrak_tokens'].apply(lambda x: remove_stopwords(x))
-        df_baru['abstrak_tokens'] = df_baru['abstrak_tokens'].apply(lambda x: stem_text(' '.join(x)).split(' '))
-        df_baru['Abstrak'] = df_baru['abstrak_tokens'].apply(lambda tokens: ' '.join(tokens))
-        st.markdown("<h4>Hasil Processing</h4>", unsafe_allow_html=True)
-        st.write(df_baru[['Abstrak','abstrak_tokens']])
-        st.markdown("<h4>Pilih model Klasifikasi Data</h4>", unsafe_allow_html=True)
-        data_count = pd.read_csv('https://raw.githubusercontent.com/wahyuarilsaputra/dataset/main/Data_CountVectorize.csv')
-        data_count['labels'] = data['Label'].values
-        
-        # Count Data
-        with open("model/count_vectorizer_model.pkl", "rb") as file:
-                count_vectorizer = pickle.load(file)
-        X_count = count_vectorizer.fit_transform(data['Abstrak'].values.astype('U'))
+        if new_text:
+            new_data.append(new_text)
+            df_baru = pd.DataFrame({'Abstrak': new_data})
+            df_baru['Abstrak'] = df_baru['Abstrak'].apply(lambda x: cleaning(x))
+            df_baru['Abstrak'] = df_baru['Abstrak'].fillna('')
+            df_baru['abstrak_tokens'] = df_baru['Abstrak'].apply(lambda x: tokenize_text(x))
+            df_baru['abstrak_tokens'] = df_baru['abstrak_tokens'].apply(lambda x: remove_stopwords(x))
+            df_baru['abstrak_tokens'] = df_baru['abstrak_tokens'].apply(lambda x: stem_text(' '.join(x)).split(' '))
+            df_baru['Abstrak'] = df_baru['abstrak_tokens'].apply(lambda tokens: ' '.join(tokens))
+            st.markdown("<h4>Hasil Processing</h4>", unsafe_allow_html=True)
+            st.write(df_baru[['Abstrak','abstrak_tokens']])
+            st.markdown("<h4>Pilih model Klasifikasi Data</h4>", unsafe_allow_html=True)
+            data_count = pd.read_csv('https://raw.githubusercontent.com/wahyuarilsaputra/dataset/main/Data_CountVectorize.csv')
+            data_count['labels'] = data['Label'].values
+            
+            # Count Data
+            with open("model/count_vectorizer_model.pkl", "rb") as file:
+                    count_vectorizer = pickle.load(file)
+            X_count = count_vectorizer.fit_transform(data['Abstrak'].values.astype('U'))
 
-        # Count Data Baru
-        X_count_baru = count_vectorizer.transform(df_baru['Abstrak'])
+            # Count Data Baru
+            X_count_baru = count_vectorizer.transform(df_baru['Abstrak'])
 
-        # Topic Modeling Data
-        # with open("model/lda_model.pkl", "rb") as file:
-        with open("model/lda_model100.pkl", "rb") as file:
-            lda_model = pickle.load(file)
-        w1 = lda_model.transform(X_count)
-        h1 = lda_model.components_
-        df_doc_topic = pd.DataFrame(np.round(w1,2))
-        df_doc_topic['label'] = data['Label'].values
-        
-        # Topic Modeling Data
-        w1_baru = lda_model.transform(X_count_baru)
+            # Topic Modeling Data
+            # with open("model/lda_model.pkl", "rb") as file:
+            with open("model/lda_model100.pkl", "rb") as file:
+                lda_model = pickle.load(file)
+            w1 = lda_model.transform(X_count)
+            h1 = lda_model.components_
+            df_doc_topic = pd.DataFrame(np.round(w1,2))
+            df_doc_topic['label'] = data['Label'].values
+            
+            # Topic Modeling Data
+            w1_baru = lda_model.transform(X_count_baru)
 
-        # Training dengan topic modeling
-        X = df_doc_topic.drop('label', axis=1)
-        y = df_doc_topic['label']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+            # Training dengan topic modeling
+            X = df_doc_topic.drop('label', axis=1)
+            y = df_doc_topic['label']
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        #Training dengan tf-idf
-        X_2 = data_count.drop('labels', axis=1)
-        y_2 = data_count['labels']
-        X_train_2, X_test_2, y_train_2, y_test_2 = train_test_split(X_2, y_2, test_size=0.2, random_state=42)
+            #Training dengan tf-idf
+            X_2 = data_count.drop('labels', axis=1)
+            y_2 = data_count['labels']
+            X_train_2, X_test_2, y_train_2, y_test_2 = train_test_split(X_2, y_2, test_size=0.2, random_state=42)
 
-        with st.expander("Naive Bayes"):
-            with open("model/naive_bayes_model.pkl", "rb") as file:
-                naive_bayes_classifier = pickle.load(file)
+            with st.expander("Naive Bayes"):
+                with open("model/naive_bayes_model.pkl", "rb") as file:
+                    naive_bayes_classifier = pickle.load(file)
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("<h4>Dengan Data Topic Modeling</h4>", unsafe_allow_html=True)
+                        naive_bayes_classifier.fit(X_train, y_train)
+                        y_pred = naive_bayes_classifier.predict(X_test)
+                        accuracy = accuracy_score(y_test, y_pred)
+                        y_pred_baru = naive_bayes_classifier.predict(w1_baru)
+                        st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
+                        st.write(y_pred_baru)
+                        st.write(accuracy)
+                        st.write(classification_report(y_test, y_pred))
+                    with col2:
+                        st.markdown("<h4>Dengan Data Asli</h4>", unsafe_allow_html=True)
+                        naive_bayes_classifier.fit(X_train_2, y_train_2)
+                        y_pred2 = naive_bayes_classifier.predict(X_test_2)
+                        accuracy = accuracy_score(y_test_2, y_pred2)
+                        y_pred_baru2 = naive_bayes_classifier.predict(X_count_baru)
+                        st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
+                        st.write(y_pred_baru2)
+                        st.write(accuracy)
+                        st.write(classification_report(y_test_2, y_pred2))
+            with st.expander("KNN"):
+                with open("model/knn_model.pkl", "rb") as file:
+                    neigh = pickle.load(file)
                 col1, col2 = st.columns(2)
                 with col1:
                     st.markdown("<h4>Dengan Data Topic Modeling</h4>", unsafe_allow_html=True)
-                    naive_bayes_classifier.fit(X_train, y_train)
-                    y_pred = naive_bayes_classifier.predict(X_test)
-                    accuracy = accuracy_score(y_test, y_pred)
-                    y_pred_baru = naive_bayes_classifier.predict(w1_baru)
+                    knn = neigh.fit(X_train, y_train)
+                    y_pred_knn = knn.predict(X_test)
+                    accuracy = accuracy_score(y_test, y_pred_knn)
+                    y_pred_knn_baru = knn.predict(w1_baru)
                     st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
-                    st.write(y_pred_baru)
+                    st.write(y_pred_knn_baru)
                     st.write(accuracy)
-                    st.write(classification_report(y_test, y_pred))
+                    st.write(classification_report(y_test, y_pred_knn))
                 with col2:
                     st.markdown("<h4>Dengan Data Asli</h4>", unsafe_allow_html=True)
-                    naive_bayes_classifier.fit(X_train_2, y_train_2)
-                    y_pred2 = naive_bayes_classifier.predict(X_test_2)
-                    accuracy = accuracy_score(y_test_2, y_pred2)
-                    y_pred_baru2 = naive_bayes_classifier.predict(X_count_baru)
+                    knn_2 = neigh.fit(X_train_2, y_train_2)
+                    y_pred_knn_2 = knn_2.predict(X_test_2)
+                    accuracy = accuracy_score(y_test_2, y_pred_knn_2)
+                    y_pred_knn_baru2 = knn_2.predict(X_count_baru)
                     st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
-                    st.write(y_pred_baru2)
+                    st.write(y_pred_knn_baru2)
                     st.write(accuracy)
-                    st.write(classification_report(y_test_2, y_pred2))
-        with st.expander("KNN"):
-            with open("model/knn_model.pkl", "rb") as file:
-                neigh = pickle.load(file)
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("<h4>Dengan Data Topic Modeling</h4>", unsafe_allow_html=True)
-                knn = neigh.fit(X_train, y_train)
-                y_pred_knn = knn.predict(X_test)
-                accuracy = accuracy_score(y_test, y_pred_knn)
-                y_pred_knn_baru = knn.predict(w1_baru)
-                st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
-                st.write(y_pred_knn_baru)
-                st.write(accuracy)
-                st.write(classification_report(y_test, y_pred_knn))
-            with col2:
-                st.markdown("<h4>Dengan Data Asli</h4>", unsafe_allow_html=True)
-                knn_2 = neigh.fit(X_train_2, y_train_2)
-                y_pred_knn_2 = knn_2.predict(X_test_2)
-                accuracy = accuracy_score(y_test_2, y_pred_knn_2)
-                y_pred_knn_baru2 = knn_2.predict(X_count_baru)
-                st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
-                st.write(y_pred_knn_baru2)
-                st.write(accuracy)
-                st.write(classification_report(y_test_2, y_pred_knn_2))
-        with st.expander("Decision Tree"):
-            with open("model/tree_model.pkl", "rb") as file:
-                clf = pickle.load(file)
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("<h4>Dengan Data Topic Modeling</h4>", unsafe_allow_html=True)
-                decision_tree = clf.fit(X_train, y_train)
-                y_pred_clf = decision_tree.predict(X_test)
-                accuracy = accuracy_score(y_test, y_pred_clf)
-                y_pred_clf_baru = decision_tree.predict(w1_baru)
-                st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
-                st.write(y_pred_clf_baru)
-                st.write(accuracy)
-                st.write(classification_report(y_test, y_pred_clf))
-            with col2:
-                st.markdown("<h4>Dengan Data Asli</h4>", unsafe_allow_html=True)
-                decision_tree_2 = clf.fit(X_train_2, y_train_2)
-                y_pred_clf_2 = decision_tree_2.predict(X_test_2)
-                accuracy = accuracy_score(y_test_2, y_pred_clf_2)
-                y_pred_clf_baru2 = decision_tree_2.predict(X_count_baru)
-                st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
-                st.write(y_pred_clf_baru2)
-                st.write(accuracy)
-                st.write(classification_report(y_test_2, y_pred_clf_2))
+                    st.write(classification_report(y_test_2, y_pred_knn_2))
+            with st.expander("Decision Tree"):
+                with open("model/tree_model.pkl", "rb") as file:
+                    clf = pickle.load(file)
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("<h4>Dengan Data Topic Modeling</h4>", unsafe_allow_html=True)
+                    decision_tree = clf.fit(X_train, y_train)
+                    y_pred_clf = decision_tree.predict(X_test)
+                    accuracy = accuracy_score(y_test, y_pred_clf)
+                    y_pred_clf_baru = decision_tree.predict(w1_baru)
+                    st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
+                    st.write(y_pred_clf_baru)
+                    st.write(accuracy)
+                    st.write(classification_report(y_test, y_pred_clf))
+                with col2:
+                    st.markdown("<h4>Dengan Data Asli</h4>", unsafe_allow_html=True)
+                    decision_tree_2 = clf.fit(X_train_2, y_train_2)
+                    y_pred_clf_2 = decision_tree_2.predict(X_test_2)
+                    accuracy = accuracy_score(y_test_2, y_pred_clf_2)
+                    y_pred_clf_baru2 = decision_tree_2.predict(X_count_baru)
+                    st.markdown("<h4>Hasil Klasifikasi</h4>", unsafe_allow_html=True)
+                    st.write(y_pred_clf_baru2)
+                    st.write(accuracy)
+                    st.write(classification_report(y_test_2, y_pred_clf_2))
 if __name__ == '__main__':
     main()
