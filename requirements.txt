@@ -1,4 +1,8 @@
 scikit-learn
 pandas
 numpy
+<<<<<<< HEAD
 gensim==4.0.1
+=======
+gensim==4.0.1
+>>>>>>> f74366e5aaca249b44a8db4993079529c61d1642
