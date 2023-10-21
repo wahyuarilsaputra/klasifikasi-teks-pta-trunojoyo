@@ -12,8 +12,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import sys
 import os
-path_to_fungsi = r'A:\Matkul\Semester 7\PPW\UTS\Fungsi'
-sys.path.append(path_to_fungsi)
+# path_to_fungsi = r'A:\Matkul\Semester 7\PPW\UTS\Fungsi'
+sys.path.append("A:/Matkul/Semester 7/PPW/UTS/Fungsi")
 from Cleaning import cleaning
 from tokenisasi import tokenize_text
 from stopword import remove_stopwords

@@ -1,3 +1,4 @@
 scikit-learn
 pandas
 numpy
+gensim==4.0.1
